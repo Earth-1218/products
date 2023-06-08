@@ -2,9 +2,8 @@
     var clms = [];
     let table = {};
     $(document).ready(function(){
-        getProductList();
+        initPref();
     });
-
 
     function editproduct(id)
     {   
@@ -12,7 +11,6 @@
             '_token' : token ,
         }
     
-        var columnDefs = 
         $.ajax({
             url: apiProducts+"/"+id,
             type:"get",
@@ -105,7 +103,7 @@
         ]) 
     {
          
-    var table = $('#product_table').DataTable({
+        var table = $('#product_table').DataTable({ 
                 order: [[0, 'desc']],
                 autoWidth: false,
                 destroy: true,
@@ -154,80 +152,40 @@
                 ],
 
                 initComplete: function () {
-                var self = this;
-
                 // Create custom search filters for each column
                 $('#btn-search').on('click', function () {
-                    var newColumns = [];
-
-                    // Add the 'id' column by default
-                    newColumns.push({ name: 'id', data: 'id', orderable: true, searchable: true });
-
-                    if ($('#name-filter').prop('checked'))
-                        newColumns.push({ name: 'name', data: 'name', orderable: true, searchable: true });
-
-                    if ($('#details-filter').prop('checked'))
-                        newColumns.push({ name: 'details', data: 'details', orderable: true, searchable: true });
-
-                    if ($('#sku-filter').prop('checked'))
-                        newColumns.push({ name: 'sku', data: 'sku', orderable: true, searchable: true });
-
-                    if ($('#price-filter').prop('checked'))
-                        newColumns.push({ name: 'price', data: 'price', orderable: true, searchable: true });
-
-                    if ($('#status-filter').prop('checked'))
-                        newColumns.push({ name: 'status', data: 'status', orderable: true, searchable: true });
-
-                    newColumns.push({ name: 'action', data: null, orderable: false, searchable: false });
-
-                    // Reinitialize the DataTable with the new columns
-                    table.destroy();
-                    getProductList(1, newColumns);
-                });
-
-                self.api().columns().every(function () {
-                    // ...
+                    setColumns();
+                    getProductList();
                 });
 
                 $('#product_table_processing').hide();
-
-                // Show/hide columns based on filter checkboxes
-                if (!$('#name-filter').prop('checked'))
-                    table.column(1).visible(false);
-
-                if (!$('#details-filter').prop('checked'))
-                    table.column(2).visible(false);
-
-                if (!$('#sku-filter').prop('checked'))
-                    table.column(3).visible(false);
-
-                if (!$('#price-filter').prop('checked'))
-                    table.column(4).visible(false);
-
-                if (!$('#status-filter').prop('checked'))
-                    table.column(5).visible(false);
+                setColumns();
             }
+         
         });
-    }
+        function setColumns()
+        {
+              // Show/hide columns based on filter checkboxes
+              if (!$('#name-filter').prop('checked'))
+              table.column(1).visible(false);
 
+              if (!$('#details-filter').prop('checked'))
+                  table.column(2).visible(false);
+
+              if (!$('#sku-filter').prop('checked'))
+                  table.column(3).visible(false);
+
+              if (!$('#price-filter').prop('checked'))
+                  table.column(4).visible(false);
+
+              if (!$('#status-filter').prop('checked'))
+                  table.column(5).visible(false);
+        }
+    }
 
     function deleteproduct(id)
     {
-        var dc = confirm("Are you sure you want to delete?");
-        if (dc) {
-            $.ajax({
-                url: apiProducts+"/"+id,
-                type:"delete",
-                data:{'_token' : token },
-                dataType:"json",
-                success: function(response){
-                        getProductList();
-                },
-                error: function(xhr, error){
-                        console.log(error);
-                }
-            });
-        }
+        ConfirmDialog(apiProducts,id,'Are you sure you want to delete product ?');
     }
 
     function isNumericKey(event) 
@@ -258,42 +216,44 @@
         return fd;
     }
 
+    function initPref()
+    {
+        $.ajax({
+            url: apiPreferences,// 
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                
+                console.log(response); // Print the response to the console for testing
+                // Access the preferences data
+                var preferences = response.data;
+                if(preferences.name){
+                    $('#name-filter').attr('checked','checked');
+                }
 
-    $.ajax({
-        url: apiPreferences,// 
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            
-            console.log(response); // Print the response to the console for testing
-            // Access the preferences data
-            var preferences = response.data;
-            if(preferences.name){
-                $('#name-filter').attr('checked','checked');
+                if(preferences.sku){
+                    $('#sku-filter').attr('checked','checked');
+                }
+
+                if(preferences.details){
+                    $('#details-filter').attr('checked','checked');
+                }
+
+                if(preferences.price){
+                    $('#price-filter').attr('checked','checked');
+                }
+
+                if(preferences.status){
+                    $('#status-filter').attr('checked','checked');
+                }
+                getProductList();
+            },
+            error: function(xhr, status, error) {
+
+                console.error(error);
             }
-
-            if(preferences.sku){
-                $('#sku-filter').attr('checked','checked');
-            }
-
-            if(preferences.details){
-                $('#details-filter').attr('checked','checked');
-            }
-
-            if(preferences.price){
-                $('#price-filter').attr('checked','checked');
-            }
-
-            if(preferences.status){
-                $('#status-filter').attr('checked','checked');
-            }
-            getColumns();
-        },
-        error: function(xhr, status, error) {
-
-            console.error(error);
-        }
-    });
+        });
+    }
 
     function putPref(){
             $.ajax({
@@ -328,44 +288,43 @@
         return pref;
     }
 
+    function exportVisibleRowsToCSV(tableId) {
+        var table = document.getElementById(tableId);
+        var rows = table.getElementsByTagName('tr');
+        var csvContent = '';
 
-function exportVisibleRowsToCSV(tableId) {
-    var table = document.getElementById(tableId);
-    var rows = table.getElementsByTagName('tr');
-    var csvContent = '';
+        // Extract table headings
+        var headerRow = rows[0];
+        var headerCells = headerRow.getElementsByTagName('th');
+        var headerRowContent = '';
 
-    // Extract table headings
-    var headerRow = rows[0];
-    var headerCells = headerRow.getElementsByTagName('th');
-    var headerRowContent = '';
-
-    for (var k = 0; k < headerCells.length; k++) {
-        var headerCell = headerCells[k];
-        headerRowContent += headerCell.textContent.trim() + ',';
-    }
-
-    headerRowContent = headerRowContent.slice(0, -1); // Remove the trailing comma
-    csvContent += headerRowContent + '\r\n';
-
-        // Extract visible rows
-        for (var i = 1; i < rows.length; i++) {
-            var row = rows[i];
-
-            if (!isHidden(row)) {
-                var cells = row.getElementsByTagName('td');
-                var csvRow = '';
-
-                for (var j = 0; j < cells.length; j++) {
-                    var cell = cells[j];
-                    csvRow += cell.textContent.trim() + ',';
-                }
-
-                csvRow = csvRow.slice(0, -1); // Remove the trailing comma
-                csvContent += csvRow + '\r\n';
-            }
+        for (var k = 0; k < headerCells.length; k++) {
+            var headerCell = headerCells[k];
+            headerRowContent += headerCell.textContent.trim() + ',';
         }
 
-        downloadCSV(csvContent);
+        headerRowContent = headerRowContent.slice(0, -1); // Remove the trailing comma
+        csvContent += headerRowContent + '\r\n';
+
+            // Extract visible rows
+            for (var i = 1; i < rows.length; i++) {
+                var row = rows[i];
+
+                if (!isHidden(row)) {
+                    var cells = row.getElementsByTagName('td');
+                    var csvRow = '';
+
+                    for (var j = 0; j < cells.length; j++) {
+                        var cell = cells[j];
+                        csvRow += cell.textContent.trim() + ',';
+                    }
+
+                    csvRow = csvRow.slice(0, -1); // Remove the trailing comma
+                    csvContent += csvRow + '\r\n';
+                }
+            }
+
+            downloadCSV(csvContent);
     }
 
     function isHidden(element) {
@@ -424,5 +383,36 @@ function exportVisibleRowsToCSV(tableId) {
     $('#preferences-close').on('click',function(){
         $('.dropdown-content2').hide();
     });
+
+    function ConfirmDialog(api, deleteId, message)
+    {
+        Swal.fire({
+            title: 'Delete',
+            text: message,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Delete'
+          }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: api+"/"+deleteId,
+                    type:"delete",
+                    data:{'_token' : token },
+                    dataType:"json",
+                    success: function(response){
+                            getProductList();
+                    },
+                    error: function(xhr, error){
+                            console.log(error);
+                    }
+                });
+            }
+        })
+    }
+    
+
+
 
    
