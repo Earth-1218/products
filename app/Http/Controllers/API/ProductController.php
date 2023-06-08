@@ -4,22 +4,15 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\Preference;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use OpenApi\Annotations as OA;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Response;
-use League\Csv\Statement;
-use Illuminate\Validation\ValidationException;
 use League\Csv\Reader;
 use DataTables;
-use DB;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Str; 
-use Illuminate\Support\Facades\Session;
 use Auth;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @OA\Info(
@@ -436,8 +429,9 @@ class ProductController extends Controller
             // Skip the header row
             $reader->setHeaderOffset(0);
             // Create a product from each row in the CSV file
-            // dd( $reader->toArray());
+         
             foreach ($reader as $row) {
+                // dd($row);
                 Product::create($row);
             }
             
@@ -446,5 +440,11 @@ class ProductController extends Controller
 
     }
 
+
+    public function truncate()
+    {
+        DB::table('products')->truncate();
+        return response()->json(['status' => true ,'data' => [], 'message' => 'Product table truncated'],201);
+    }
 }
 

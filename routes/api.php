@@ -24,7 +24,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::apiResource('products', ProductController::class);
     Route::get('/products/export', [ProductController::class, 'export'])->name('api.products.export');
     Route::post('/products/import', [ProductController::class, 'import'])->name('api.products.import');
-
+    Route::post('/products/truncate', [ProductController::class, 'truncate'])->name('api.products.truncate');
 
     Route::get('/preferences', [PreferenceController::class, 'index'])->name('api.preferences.show');
     Route::put('/preferences', [PreferenceController::class, 'update'])->name('api.preferences.save');

@@ -28,6 +28,10 @@
         padding-right:5px;
     } */
 
+    .form-group .required .control-label:after {
+      content:"*";color:red;
+    }
+
     .switch {
     position: relative;
     display: inline-block;

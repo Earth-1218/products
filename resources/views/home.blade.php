@@ -66,7 +66,7 @@
                             </div>
                             &nbsp;&nbsp;
                             <button class="ml-5 btn btn-primary " onclick="createproduct()">Create Product</button>&nbsp;&nbsp;
-                            <form class="d-flex border-1" action="{{ config('app.url') }}/api/products/import" enctype="multipart/form-data" method="post">
+                            <form class="d-flex border-1" action="{{ config('app.url') }}/api/products/import" enctype="multipart/form-data" method="post" >
                                     @csrf
                                     <input id="product_csv" name="products_list" type="file" class="form-control"/>&nbsp;
                                     <button type="submit" class="btn btn-success">Import </button>
@@ -117,6 +117,7 @@
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             
                         </div> 
+                        <button onclick="truncate()" class="btn btn-danger">Clear all</button> 
                     </div>
                     </div>
                     <div class="container mt-5">
@@ -147,7 +148,7 @@
 <div class="modal fade" id="productsModal" tabindex="-1" role="dialog" aria-labelledby="productsModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <form id="product_form">
+            <form id="product_form" class="needs-validation" onsubmit="return event.preventDefault();" novalidate>
                 <div class="modal-header">
                     <h5 class="modal-title" id="productsModalHeading">Products CRUD</h5>
                     <span style="cursor: pointer;" onclick="$('#productsModal').modal('hide');" aria-hidden="true">&times;</span>
@@ -155,22 +156,26 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-row row">
-                    <div class="form-group col-md-4">
-                        <label for="inputEmail4">Product Name</label>
+                    <div class="form-group col-md-4 required">
+                        <label for="inputEmail4" class=" control-label">Product Name</label>
                         <input type="text" area-controls="product_table" class="form-control" id="name" name="name" placeholder="Product Name" required>
+                        <span class="invalid-feedback">required</span>
                     </div>
                     <div class="form-group col-md-4">
                         <label for="inputPassword4">Product Price</label>
                         <input type="text" area-controls="product_table" onkeypress=" return isNumericKey(event)" class="form-control" id="price" name="price" placeholder="Product Price" required>
+                        <span class="invalid-feedback">required</span>
                     </div>
                     <div class="form-group col-md-4">
                         <label for="inputPassword4">Product SKU</label>
                         <input type="text" area-controls="product_table" class="form-control" id="sku" name="sku" placeholder="Product SKU" required>
+                        <span class="invalid-feedback">required</span>
                     </div>
                     </div>
                     <div class="form-group mt-3">
                         <label for="inputAddress">Details</label>
                         <textarea class="form-control" id="details" placeholder="Enter Product Details" required></textarea>
+                        <span class="invalid-feedback">required</span>
                     </div>
                     <div class="form-group mt-3">
                         <label for="inputAddress">Status</label>
@@ -179,6 +184,7 @@
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
+                        <span class="invalid-feedback">required</span>
                     </div>
                 </div>
                 <div class="modal-footer" id="saveSection">

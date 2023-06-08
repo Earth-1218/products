@@ -2,8 +2,29 @@
     var clms = [];
     let table = {};
     $(document).ready(function(){
+        executeFormValidation();
         initPref();
     });
+
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    function executeFormValidation() {
+        'use strict'
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            saveproduct();
+            form.classList.add('was-validated')
+            }, false)
+        })
+    }
 
     function editproduct(id)
     {   
@@ -52,46 +73,43 @@
         $('#productsModal').modal('show');
     }
 
-    function saveproduct(id = null)
-    {
-
-        let url ='';
-        let fd = {}
-        if(id != null){
-            method = 'put';
-            url = apiProducts+'/'+id;
-        }else{
-            method = 'post';
+    function saveproduct(id = null) {
+        let url = '';
+        let fd = {};
+        
+        if (id !== null) {
+            url = apiProducts + '/' + id;
+        } else {
             url = apiProducts;
         }
-
+    
         fd = {
-            '_token' : token,
-            "name" : $('#name').val(),
-            "price" : $('#price').val(),
-            "details" : $('#details').val(),
-            "sku" : $('#sku').val(),
-            "status" : $('#status').val()
-        }
-
-
+            '_token': token,
+            "name": $('#name').val(),
+            "price": $('#price').val(),
+            "details": $('#details').val(),
+            "sku": $('#sku').val(),
+            "status": $('#status').val()
+        };
+    
+        
         $.ajax({
-            url: url ,
-            type:method,
-            data:fd,
-            dataType:"json",
-            success: function(response){
-            if(response.status == true){
-                getProductList();
-                $('#productsModal').modal('hide');
-            }
+            url: url,
+            type: (id != null) ? 'PUT' : 'POST',
+            data: fd,
+            dataType: "json",
+            success: function(response) {
+                if (response.status === true) {
+                    getProductList();
+                    $('#productsModal').modal('hide');
+                }
             },
-            error: function(xhr, error){
+            error: function(xhr, error) {
                 console.log(error);
             }
         });
     }
-
+    
     function getProductList(page = 1, columns = [
             { name: 'id', data: 'id', orderable: true, searchable: true },
             { name: 'name', data: 'name', orderable: true, searchable: true },
@@ -341,9 +359,9 @@
         document.body.removeChild(link);
     }
 
-    $('#product_form').on('submit',function(){
-        saveproduct();
-    });
+    // $('#product_form').on('submit',function(){
+    //     saveproduct();
+    // });
 
     $('#preferences-save').on('click',function(){
         putPref();
@@ -411,7 +429,24 @@
             }
         })
     }
+
+    function truncate(){
+        $.ajax({
+            url: apiProducts+'/truncate',
+            type:'POST',
+            data: { '_token' : token},
+            dataType: "json",
+            success: function(response) {
+                getProductList();
+            },
+            error: function(xhr, error) {
+                console.log(error);
+            }
+        });
+    }
     
+
+
 
 
 
