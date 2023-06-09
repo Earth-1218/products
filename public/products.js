@@ -259,6 +259,7 @@
                 console.log(response); // Print the response to the console for testing
                 // Access the preferences data
                 var preferences = response.data;
+
                 if(preferences.name){
                     $('#name-filter').attr('checked','checked');
                 }

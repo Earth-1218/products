@@ -114,7 +114,15 @@ class ProductController extends Controller
      public function index(Request $request)
      {          
          $user = Auth::user();
-         $preferences =  $user->preference;
+         $default_preferences = (object)[
+            'name' => 1,
+            'sku' => 1,
+            'details' => 1,
+            'price' => 1,
+            'status' => 1
+         ];
+         
+         $preferences =  (isset($user->preference)) ?  $user->preference :  $default_preferences;
          $query = Product::query();
 
          // Apply searching

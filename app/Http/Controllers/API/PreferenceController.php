@@ -52,7 +52,15 @@ class PreferenceController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $preferences = $user->preference;
+        $default_preferences = (object)[
+            'name' => 1,
+            'sku' => 1,
+            'details' => 1,
+            'price' => 1,
+            'status' => 1
+        ];
+        $preferences = ($user->preference) ? $user->preference : $default_preferences;
+        
         return response()->json(['status' => true, 'data' => $preferences],200);
     }
 
@@ -80,8 +88,14 @@ class PreferenceController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-        $preferences = $user->preference;
+        $input  = $request->all();
+        $input['user_id'] = $user->id;
+        if($user->preference){
+        $preferences  =  $user->preference;
         $preferences->update($request->all());
+        }else{
+            Preference::create($input);
+        }
         return response()->json(['status'=>true,'data' => [] ,'message' => 'Preferences updated successfully'],200);
     }
 
