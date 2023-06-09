@@ -110,18 +110,21 @@
         });
     }
     
+    var searchButtonClicked = false; // Flag variable
+
     function getProductList(page = 1, columns = [
-            { name: 'id', data: 'id', orderable: true, searchable: true },
-            { name: 'name', data: 'name', orderable: true, searchable: true },
-            { name: 'details', data: 'details', orderable: true, searchable: true },
-            { name: 'sku', data: 'sku', orderable: true, searchable: true },
-            { name: 'price', data: 'price', orderable: true, searchable: true },
-            { name: 'status', data: 'status', orderable: true, searchable: true },
-            { name: 'action', data: null, orderable: false, searchable: false }
-        ]) 
-    {
-         
-        var table = $('#product_table').DataTable({ 
+        { name: 'id', data: 'id', orderable: true, searchable: true },
+        { name: 'name', data: 'name', orderable: true, searchable: true },
+        { name: 'details', data: 'details', orderable: true, searchable: true },
+        { name: 'sku', data: 'sku', orderable: true, searchable: true },
+        { name: 'price', data: 'price', orderable: true, searchable: true },
+        { name: 'status', data: 'status', orderable: true, searchable: true },
+        { name: 'action', data: null, orderable: false, searchable: false }
+    ]) {
+        var table;
+    
+        function initializeTable() {
+            table = $('#product_table').DataTable({
                 order: [[0, 'desc']],
                 autoWidth: false,
                 destroy: true,
@@ -134,13 +137,15 @@
                 ajax: {
                     url: apiProducts,
                     type: "GET",
-                    data: {
-                        page: page,
-                        name: $('#name-input').val(),
-                        sku: $('#sku-input').val(),
-                        details: $('#details-input').val(),
-                        price: $('#price-input').val(),
-                        _token: token
+                    data: function (d) {
+                        if (searchButtonClicked) {
+                            d.page = page;
+                            d.name = $('#name-input').val();
+                            d.sku = $('#sku-input').val();
+                            d.details = $('#details-input').val();
+                            d.price = $('#price-input').val();
+                            d._token = token;
+                        }
                     },
                     dataType: "json",
                     error: function (xhr, error) {
@@ -168,38 +173,47 @@
                         }
                     }
                 ],
-
+    
                 initComplete: function () {
-                // Create custom search filters for each column
-                $('#btn-search').on('click', function () {
+                    // Create custom search filters for each column
+                    $('#btn-search').on('click', function () {
+                        searchButtonClicked = true;
+                        setColumns();
+                        reloadTable();
+                    });
+    
+                    $('#product_table_processing').hide();
                     setColumns();
-                    getProductList();
-                });
-
-                $('#product_table_processing').hide();
-                setColumns();
-            }
-         
-        });
-        function setColumns()
-        {
-              // Show/hide columns based on filter checkboxes
-              if (!$('#name-filter').prop('checked'))
-              table.column(1).visible(false);
-
-              if (!$('#details-filter').prop('checked'))
-                  table.column(2).visible(false);
-
-              if (!$('#sku-filter').prop('checked'))
-                  table.column(3).visible(false);
-
-              if (!$('#price-filter').prop('checked'))
-                  table.column(4).visible(false);
-
-              if (!$('#status-filter').prop('checked'))
-                  table.column(5).visible(false);
+                }
+            });
         }
+    
+        function setColumns() {
+            // Show/hide columns based on filter checkboxes
+            if (!$('#name-filter').prop('checked'))
+                table.column(1).visible(false);
+    
+            if (!$('#details-filter').prop('checked'))
+                table.column(2).visible(false);
+    
+            if (!$('#sku-filter').prop('checked'))
+                table.column(3).visible(false);
+    
+            if (!$('#price-filter').prop('checked'))
+                table.column(4).visible(false);
+    
+            if (!$('#status-filter').prop('checked'))
+                table.column(5).visible(false);
+        }
+    
+        function reloadTable() {
+            table.ajax.reload(null, false); // Reload the table without resetting the current page
+            searchButtonClicked = false; // Reset the flag variable
+        }
+    
+        initializeTable();
     }
+    
 
     function deleteproduct(id)
     {
@@ -431,16 +445,28 @@
     }
 
     function truncate(){
-        $.ajax({
-            url: apiProducts+'/truncate',
-            type:'POST',
-            data: { '_token' : token},
-            dataType: "json",
-            success: function(response) {
-                getProductList();
-            },
-            error: function(xhr, error) {
-                console.log(error);
+        Swal.fire({
+            title: 'Truncate',
+            text: 'Are you sure you want to delete whole data ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Delete'
+        }).then((result) => { 
+            if (result.isConfirmed) {
+            $.ajax({
+                    url: apiProducts+'/truncate',
+                    type:'POST',
+                    data: { '_token' : token},
+                    dataType: "json",
+                    success: function(response) {
+                        getProductList();
+                    },
+                    error: function(xhr, error) {
+                        console.log(error);
+                    }
+                });
             }
         });
     }
