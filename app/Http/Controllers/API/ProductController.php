@@ -155,8 +155,7 @@ class ProductController extends Controller
                         }
                     }
                 }
-            }
-            // dd( $query->toSql());            
+            }         
         }
 
 

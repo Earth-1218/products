@@ -5,28 +5,10 @@
     $(document).ready(function(){
         atLeastOneRequired = 0;
         $('#clear').hide();
-        executeFormValidation();
+        // validateForm($(this));
         initPref();
     });
-    // Example starter JavaScript for disabling form submissions if there are invalid fields
-    function executeFormValidation() {
-        'use strict'
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        var forms = document.querySelectorAll('.needs-validation')
-
-        // Loop over them and prevent submission
-        Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-            if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
-            }
-            saveproduct();
-            form.classList.add('was-validated')
-            }, false)
-        })
-    }
+  
 
     function editproduct(id)
     {   
@@ -137,7 +119,7 @@
                 bFilter: true,
                 ordering: true,
                 searching: false,
-                // aaSorting: [[2, "asc"][3, "asc"],[4, "asc"]],
+
                 ajax: {
                     url: apiProducts,
                     type: "GET",
@@ -378,9 +360,7 @@
         document.body.removeChild(link);
     }
 
-    // $('#product_form').on('submit',function(){
-    //     saveproduct();
-    // });
+
 
     $('#preferences-save').on('click',function(){
         putPref();
@@ -538,6 +518,153 @@
             }else{
                 $('#clear').hide(); 
             }
+    });
+
+    $('#product_form').on('submit',function(){
+        element  = $(this);
+        element.validate({
+            rules: {
+                name: {
+                    minlength: 2,
+                    required: true
+                },
+                price: {
+                    min: 1,
+                    required: true
+                },
+                sku: {
+                    minlength: 5,
+                    required: true
+                },
+                // details: {
+                //     minlength: 5,
+                //     required: true
+                // },
+                status: {
+                    required: true
+                }
+            },
+            messages: {
+                name: {
+                    required: 'Please enter a name.',
+                    minlength: jQuery.validator.format('Name must be at least {0} characters.')
+                },
+                price: {
+                    required: 'Please enter a price.',
+                    min: 'Price must be at least 1.'
+                },
+                sku: {
+                    required: 'Please enter an SKU.',
+                    minlength: jQuery.validator.format('SKU must be at least {0} characters.')
+                },
+                details: {
+                    required: 'Please enter details.',
+                    minlength: jQuery.validator.format('Details must be at least {0} characters.')
+                },
+                status: {
+                    required: 'Please select a status.'
+                }
+            },
+            highlight: function (element) {
+                $(element)
+                    .closest('.form-control')
+                    .removeClass('is-valid')
+                    .addClass('is-invalid');
+            },
+            unhighlight: function (element) {
+                $(element)
+                    .closest('.form-control')
+                    .removeClass('is-invalid')
+                    .addClass('is-valid');
+            },
+            errorPlacement: function (error, element) {
+                if (element.attr('name') === 'status') {
+                    error.insertAfter(element.parent());
+                } else {
+                    error.insertAfter(element);
+                }
+            },
+            errorClass: 'invalid-feedback',
+            validClass: 'valid-feedback',
+            submitHandler: function () {
+                saveproduct();
+            }
+        });
+    });
+
+    $('#product_form').one('submit', function (event) {
+        event.preventDefault();
+        var element = $(this);
+        element.validate({
+            rules: {
+                name: {
+                    minlength: 2,
+                    required: true
+                },
+                price: {
+                    min: 1,
+                    required: true
+                },
+                sku: {
+                    minlength: 5,
+                    required: true
+                },
+                // details: {
+                //     minlength: 5,
+                //     required: true
+                // },
+                status: {
+                    required: true
+                }
+            },
+            messages: {
+                name: {
+                    required: 'Please enter a name.',
+                    minlength: jQuery.validator.format('Name must be at least {0} characters.')
+                },
+                price: {
+                    required: 'Please enter a price.',
+                    min: 'Price must be at least 1.'
+                },
+                sku: {
+                    required: 'Please enter an SKU.',
+                    minlength: jQuery.validator.format('SKU must be at least {0} characters.')
+                },
+                details: {
+                    required: 'Please enter details.',
+                    minlength: jQuery.validator.format('Details must be at least {0} characters.')
+                },
+                status: {
+                    required: 'Please select a status.'
+                }
+            },
+            highlight: function (element) {
+                $(element)
+                    .closest('.form-control')
+                    .removeClass('is-valid')
+                    .addClass('is-invalid');
+            },
+            unhighlight: function (element) {
+                $(element)
+                    .closest('.form-control')
+                    .removeClass('is-invalid')
+                    .addClass('is-valid');
+            },
+            errorPlacement: function (error, element) {
+                if (element.attr('name') === 'status') {
+                    error.insertAfter(element.parent());
+                } else {
+                    error.insertAfter(element);
+                }
+            },
+            errorClass: 'invalid-feedback',
+            validClass: 'valid-feedback',
+            submitHandler: function () {
+                saveProduct();
+                // Disable the submit button to prevent multiple submissions
+                element.find('button[type="submit"]').prop('disabled', true);
+            }
+        });
     });
    
     

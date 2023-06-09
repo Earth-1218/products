@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
@@ -157,7 +157,7 @@
             <form id="product_form" class="needs-validation" onsubmit="return event.preventDefault();" novalidate>
                 <div class="modal-header">
                     <h5 class="modal-title" id="productsModalHeading">Products CRUD</h5>
-                    <span style="cursor: pointer;" onclick="$('#productsModal').modal('hide');" aria-hidden="true">&times;</span>
+                    <span style="cursor: pointer;" onclick="$('#reset').trigger('click'),$('#productsModal').modal('hide');" aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -165,23 +165,23 @@
                     <div class="form-group col-md-4 required">
                         <label for="inputEmail4" class=" control-label">Product Name</label>
                         <input type="text" area-controls="product_table" class="form-control" id="name" name="name" placeholder="Product Name" required>
-                        <span class="invalid-feedback">required</span>
+                        {{-- <span class="invalid-feedback">required</span> --}}
                     </div>
                     <div class="form-group col-md-4">
                         <label for="inputPassword4">Product Price</label>
                         <input type="text" area-controls="product_table" onkeypress=" return isNumericKey(event)" class="form-control" id="price" name="price" placeholder="Product Price" required>
-                        <span class="invalid-feedback">required</span>
+                        {{-- <span class="invalid-feedback">required</span> --}}
                     </div>
                     <div class="form-group col-md-4">
                         <label for="inputPassword4">Product SKU</label>
                         <input type="text" area-controls="product_table" class="form-control" id="sku" name="sku" placeholder="Product SKU" required>
-                        <span class="invalid-feedback">required</span>
+                        {{-- <span class="invalid-feedback">required</span> --}}
                     </div>
                     </div>
                     <div class="form-group mt-3">
                         <label for="inputAddress">Details</label>
-                        <textarea class="form-control" id="details" placeholder="Enter Product Details" required></textarea>
-                        <span class="invalid-feedback">required</span>
+                        <textarea class="form-control" id="details" name="details" placeholder="Enter Product Details" ></textarea>
+                        {{-- <span class="invalid-feedback">required</span> --}}
                     </div>
                     <div class="form-group mt-3">
                         <label for="inputAddress">Status</label>
@@ -190,19 +190,20 @@
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
-                        <span class="invalid-feedback">required</span>
+                        {{-- <span class="invalid-feedback">required</span> --}}
                     </div>
                 </div>
                 <div class="modal-footer" id="saveSection">
+                    <button type="reset" id="reset" class="d-none">Reset</button> 
                     <button type="submit" id="btnProductSave" class="btn btn-primary">Save</button> 
                 </div>  
             </form>
         </div>
     </div>
 </div>
-<script type="text/javascript" src="https://code.jquery.com/jquery-3.7.0.min.js" ></script>
+{{-- <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.0.min.js" ></script> --}}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+{{-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script> --}}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
@@ -215,5 +216,4 @@
 </script>
 
 <script src="{{ asset('/') }}products.js"></script>
-
 @endsection
