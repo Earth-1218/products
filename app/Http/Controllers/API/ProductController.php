@@ -133,24 +133,42 @@ class ProductController extends Controller
                 $query->where('details', 'LIKE', '%' . $request->input('details') . '%');
                 $query->where('price', 'LIKE', '%' . $request->input('price') . '%');
         }
-    
-        
+
          // Apply column-wise sorting
-         if ($request->has('order') && $request->has('columns')) {
+        if ($request->has('order') && $request->has('columns')) {
             $columns = $request->input('columns');
             $order = $request->input('order');
-        
-            foreach ($order as $index => $direction) {
-                if (isset($columns[$index]) && isset($columns[$index]['name'])) {
-                    $column = $columns[$index]['name'];
-                    $dir = $direction['dir']; // Get the sorting direction from the 'dir' property
-                    $query->orderBy($column, $dir);
+
+            foreach ($columns as $index => $column) {
+                if (isset($column['name']) && $column['name'] !== 'action') {
+                    $columnName = $column['name'];
+                    $dir = $order[0]['dir']; // Get the sorting direction from the 'dir' property
+                    $sorting_column  = $order[0]['column'];
+                    if($sorting_column == $index)
+                    {
+                        if ($index === 2 || $index === 3 || $index === 4) {
+                            $query->orderByRaw("LOWER($columnName) $dir");
+                        } else if ($index === 5 || $index === 1) {
+                            $query->orderByRaw("CONVERT($columnName, DECIMAL) $dir");
+                        } else {
+                            $query->orderBy($columnName, $dir);
+                        }
+                    }
                 }
             }
+            // dd( $query->toSql());            
         }
+
+
         
          
          $datatable = DataTables::of($query)
+            ->addColumn('is_checked', function ($product) {
+                    return $product->id;
+            })
+             ->addColumn('id', function ($product) {
+                return $product->id;
+             })
              ->addColumn('status', function ($product) {
                  $badge = ($product->status == 'inactive') ? 'badge badge-danger' : 'badge badge-success';
                  return '<span class="' . $badge . '">' . $product->status . '</span>';
@@ -392,6 +410,16 @@ class ProductController extends Controller
         // $product->save();
         return response()->json(['status' => true ,'data' => [], 'messsage' => 'Product Deleted !'], 204);
     }
+
+    public function deleteMultiple(Request $request)
+    {
+        $ids = $request->selected_product_ids;
+        $products = new Product();
+        $products->whereIn('id', $ids)->delete();
+        return response()->json(['status' => true ,'data' => [], 'messsage' => 'Products Deleted !'], 200);
+    }
+
+
 
     public function export()
     {

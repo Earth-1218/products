@@ -22,7 +22,11 @@
                             <div class="dropdown2">
                                 <button class="btn-dropdown2 btn btn-primary">Preferences</button>
                                 <div class="dropdown-content2 p-4">
+                                <div class="d-flex" style="justify-content: flex-end">
+                                    {{-- <span class="preferences-close" style="cursor:pointer" class="mt-2 pb-2"> <i class="fa fa-close"></i> </span> --}}
+                                </div> 
                                 <div style="justify-content: space-between;" class="col d-flex">    
+                                    
                                     <label>Name</label>
                                     <label class="switch">
                                         <input type="checkbox" value="1" name="name" id="name-filter">
@@ -60,7 +64,7 @@
                                 <div class="pt-4">
                                     <button id="preferences-save" class="btn btn-primary"><i class="fa fa-save"></i></button>
                                     <button id="preferences-reset" class="btn btn-primary"><i class="fa fa-refresh"></i></button>
-                                    <button id="preferences-close" class="btn btn-danger"><i class="fa fa-close"></i></button> 
+                                    <button id="preferences-close" class="btn btn-danger">Close</button> 
                                 </div>
                                 </div>
                             </div>
@@ -110,20 +114,22 @@
                                 <div class="form-group col">
                                     <button id="btn-search" class="btn btn-primary"><i class="fa fa-search"></i></button> 
                                     <button id="btn-clear-search" class="btn btn-primary"><i class="fa fa-refresh"></i></button> 
-                                    <button id="btn-close-search" class="btn btn-danger"><i class="fa fa-close"></i></button> 
+                                    <button id="btn-close-search" class="btn btn-danger">Close</button> 
                                 </div>
                             </a>
                             </div>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             
                         </div> 
-                        <button onclick="truncate()" class="btn btn-danger">Clear all</button> 
+                        <button onclick="deleteSelectedProducts()" id="clear" class="btn btn-danger">Delete Multiple</button>
+                        {{-- <button onclick="truncate()" class="btn btn-danger">Clear all</button>  --}}
                     </div>
                     </div>
                     <div class="container mt-5">
                         <table id="product_table" class="table table-striped mt-4">
                             <thead id="product_list_heading grey">
                                 <tr>
+                                    <th id="plh_id" scope="col"><input class="selall product_selector" type="checkbox"  data-id="0" /></th>
                                     <th id="plh_id" scope="col">Id</th>
                                     <th id="plh_name" scope="col">Name</th>
                                     <th id="plh_details" scope="col">Details</th>

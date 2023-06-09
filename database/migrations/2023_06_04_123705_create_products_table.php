@@ -10,6 +10,7 @@ class CreateProductsTable extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->boolean('is_checked')->default(0);
             $table->string('name');
             $table->string('sku')->unique();
             $table->text('details')->nullable();

@@ -1,11 +1,13 @@
 
     var clms = [];
     let table = {};
+    let atLeastOneRequired;
     $(document).ready(function(){
+        atLeastOneRequired = 0;
+        $('#clear').hide();
         executeFormValidation();
         initPref();
     });
-
     // Example starter JavaScript for disabling form submissions if there are invalid fields
     function executeFormValidation() {
         'use strict'
@@ -113,7 +115,8 @@
     var searchButtonClicked = false; // Flag variable
 
     function getProductList(page = 1, columns = [
-        { name: 'id', data: 'id', orderable: true, searchable: true },
+        { name: 'is_checked', data: null, orderable: false, searchable: false },
+        { name: 'id', data: 'id', orderable: true, searchable: false },
         { name: 'name', data: 'name', orderable: true, searchable: true },
         { name: 'details', data: 'details', orderable: true, searchable: true },
         { name: 'sku', data: 'sku', orderable: true, searchable: true },
@@ -134,6 +137,7 @@
                 bFilter: true,
                 ordering: true,
                 searching: false,
+                // aaSorting: [[2, "asc"][3, "asc"],[4, "asc"]],
                 ajax: {
                     url: apiProducts,
                     type: "GET",
@@ -157,13 +161,13 @@
                     {
                         defaultContent: "-",
                         targets: "_all",
-                        targets: 5,
+                        targets: 0,
                         render: function (data, type, row) {
-                            return row.status
+                            return `<div class="prochklist"> <input class="checkbox prochk product_selector"  type="checkbox" value="${row.id}" data-id="${row.id}" /></span> </div>`
                         }
                     },
                     {
-                        targets: 6,
+                        targets: 7,
                         render: function (data, type, row) {
                             return `<div class="d-flex">
                                 <button class="btn btn-primary" onclick="editproduct(${row.id})"><i class="fa fa-edit"></i></button>
@@ -471,6 +475,75 @@
             }
         });
     }
+
+    $('.selall').on('change',function(){
+        if($(this).is(':checked')){
+            $('.prochklist').find('input[type=checkbox]').prop('checked',true);
+        }else{
+            $('.prochklist').find('input[type=checkbox]').prop('checked',false);
+        }
+    });
+
+
+
+    function deleteSelectedProducts(){
+        Swal.fire({
+            title: 'Delete Selected',
+            text: 'Are you sure you want to delete selected data ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Delete'
+        }).then((result) => { 
+            if (result.isConfirmed) {
+                let selectedProducts = [];
+                $('.checkbox').each(function (index, obj) {
+                    if (this.checked === true) {
+                        selectedProducts[index] = obj.value; 
+                    }
+                });
+                if(selectedProducts.length > 0)
+                {
+                    $.ajax({
+                        url: apiProducts+'/delete/selected',
+                        type:'POST',
+                        data: { '_token' : token, 'selected_product_ids' : selectedProducts },
+                        dataType: "json",
+                        success: function(response) {
+                            if(response.status){
+                                getProductList();
+                            }
+                        },
+                        error: function(xhr, error) {
+                            console.log(error);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+
+    $('.checkbox').on('click',function(){
+        if($(this).is(':checked')){
+
+        }
+    });
+
+    $(document).on('change', '.product_selector', function() {
+        var isChecked = $('.product_selector:checked').length > 0;
+            if(isChecked){
+                $('#clear').show();
+            }else{
+                $('#clear').hide(); 
+            }
+    });
+   
+    
+    
+
+    
     
 
 
