@@ -68,19 +68,24 @@
                                 </div>
                                 </div>
                             </div>
-                            &nbsp;&nbsp;
-                            <button class="ml-5 btn btn-primary " onclick="createproduct()">Create Product</button>&nbsp;&nbsp;
-                            <form class="d-flex border-1" action="{{ config('app.url') }}/api/products/import" enctype="multipart/form-data" method="post" >
-                                    @csrf
+                          
+
+                            <form class=" d-flex border-1" id="product_import_form" action="{{ config('app.url') }}/api/products/import" enctype="multipart/form-data" method="post" >
+                                @csrf
+                                <div class="ml-5 form-group ">
                                     <input id="product_csv" name="products_list" type="file" class="form-control"/>&nbsp;
-                                    <button type="submit" class="btn btn-success">Import </button>
+                                    
+                                </div>
+                                <button type="submit" class="btn btn-success import-submit ">Import </button>
                             </form>
-                            &nbsp;&nbsp;
-                            <a href="javascript:void(0);" class="btn btn-secondary " onclick="exportVisibleRowsToCSV('product_table')">Export</a>&nbsp; 
+                            <button class="ml-5 btn btn-primary " style="height: fit-content; " onclick="createproduct()">Create Product</button>
+                          
+                       
+                            <a href="javascript:void(0);" style="height: fit-content; margin-left:10px; " class="btn btn-secondary " onclick="exportVisibleRowsToCSV('product_table')">Export</a>&nbsp; 
                         </div>
-                        &nbsp;
+               
                         <div class="dropdown1">
-                            <button class="btn-dropdown1 btn btn-primary">Filters</button> 
+                            <button style="    margin-left: 5px;" class="btn-dropdown1 btn btn-primary">Filters</button> 
                             <div class="dropdown-content1">
                             <a>
                                 <div class="form-group col ">
@@ -121,10 +126,11 @@
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             
                         </div> 
-                        <button onclick="deleteSelectedProducts()" id="clear" class="btn btn-danger">Delete Multiple</button>
+                        <button onclick="deleteSelectedProducts()" style="height: fit-content; " id="clear" class="btn btn-danger">Delete Multiple</button>
                         {{-- <button onclick="truncate()" class="btn btn-danger">Clear all</button>  --}}
                     </div>
                     </div>
+                    
                     <div class="container mt-5">
                         <table id="product_table" class="table table-striped mt-4">
                             <thead id="product_list_heading grey">
@@ -157,31 +163,31 @@
             <form id="product_form" class="needs-validation" onsubmit="return event.preventDefault();" novalidate>
                 <div class="modal-header">
                     <h5 class="modal-title" id="productsModalHeading">Products CRUD</h5>
-                    <span style="cursor: pointer;" onclick="$('#reset').trigger('click'),$('#productsModal').modal('hide');" aria-hidden="true">&times;</span>
+                    <span style="cursor: pointer;" onclick="closeProductModal()" aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="form-row row">
                     <div class="form-group col-md-4 required">
                         <label for="inputEmail4" class=" control-label">Product Name</label>
-                        <input type="text" area-controls="product_table" class="form-control" id="name" name="name" placeholder="Product Name" required>
-                        {{-- <span class="invalid-feedback">required</span> --}}
+                        <input autocomplete="off" type="text" area-controls="product_table" class="form-control" id="name" name="name" placeholder="Product Name" required>
+                        <span class="invalid-feedback">required</span>
                     </div>
                     <div class="form-group col-md-4">
                         <label for="inputPassword4">Product Price</label>
-                        <input type="text" area-controls="product_table" onkeypress=" return isNumericKey(event)" class="form-control" id="price" name="price" placeholder="Product Price" required>
-                        {{-- <span class="invalid-feedback">required</span> --}}
+                        <input autocomplete="off" type="text" area-controls="product_table" onkeypress=" return isNumericKey(event)" class="form-control" id="price" name="price" placeholder="Product Price" required>
+                        <span class="invalid-feedback">required</span>
                     </div>
                     <div class="form-group col-md-4">
                         <label for="inputPassword4">Product SKU</label>
-                        <input type="text" area-controls="product_table" class="form-control" id="sku" name="sku" placeholder="Product SKU" required>
-                        {{-- <span class="invalid-feedback">required</span> --}}
+                        <input autocomplete="off" type="text" area-controls="product_table" class="form-control" id="sku" name="sku" placeholder="Product SKU" required>
+                        <span class="invalid-feedback">required</span>
                     </div>
                     </div>
                     <div class="form-group mt-3">
-                        <label for="inputAddress">Details</label>
+                        <label for="inputAddress">Details (Optional)</label>
                         <textarea class="form-control" id="details" name="details" placeholder="Enter Product Details" ></textarea>
-                        {{-- <span class="invalid-feedback">required</span> --}}
+                        <span class="invalid-feedback">required</span>
                     </div>
                     <div class="form-group mt-3">
                         <label for="inputAddress">Status</label>
@@ -190,12 +196,12 @@
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
-                        {{-- <span class="invalid-feedback">required</span> --}}
+                        <span class="invalid-feedback">required</span>
                     </div>
                 </div>
                 <div class="modal-footer" id="saveSection">
                     <button type="reset" id="reset" class="d-none">Reset</button> 
-                    <button type="submit" id="btnProductSave" class="btn btn-primary">Save</button> 
+                    <button type="button" id="btnProductSave" onclick="submitProductForm()" class="btn btn-primary">Save</button> 
                 </div>  
             </form>
         </div>

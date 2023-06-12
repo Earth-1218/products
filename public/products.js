@@ -10,6 +10,18 @@
     });
   
 
+    
+    function closeProductModal(){
+        var formElement = $('#product_form');
+        if (formElement.length > 0) {
+            // formElement[0].reset();
+            formElement.find('.is-invalid, .is-valid').removeClass('is-invalid is-valid');
+        } else {
+            console.error('Form element not found.');
+        }
+        $('#productsModal').modal('hide'); 
+    }
+
     function editproduct(id)
     {   
         let pfd ={
@@ -27,7 +39,7 @@
                     var sku = '';
                     var status = '';
                     $('#saveSection').html(`
-                        <button type="button" onclick="saveproduct(${id})" class="btn btn-primary">Save</button>
+                        <button type="button" onclick="submitProductForm(${id})" class="btn btn-primary">Save</button>
                     `)
                     if(product)
                     {
@@ -110,7 +122,7 @@
     
         function initializeTable() {
             table = $('#product_table').DataTable({
-                order: [[0, 'desc']],
+                order: [[1, 'desc']],
                 autoWidth: false,
                 destroy: true,
                 processing: true,
@@ -119,7 +131,6 @@
                 bFilter: true,
                 ordering: true,
                 searching: false,
-
                 ajax: {
                     url: apiProducts,
                     type: "GET",
@@ -177,19 +188,19 @@
         function setColumns() {
             // Show/hide columns based on filter checkboxes
             if (!$('#name-filter').prop('checked'))
-                table.column(1).visible(false);
-    
-            if (!$('#details-filter').prop('checked'))
                 table.column(2).visible(false);
     
-            if (!$('#sku-filter').prop('checked'))
+            if (!$('#details-filter').prop('checked'))
                 table.column(3).visible(false);
     
-            if (!$('#price-filter').prop('checked'))
+            if (!$('#sku-filter').prop('checked'))
                 table.column(4).visible(false);
     
-            if (!$('#status-filter').prop('checked'))
+            if (!$('#price-filter').prop('checked'))
                 table.column(5).visible(false);
+    
+            if (!$('#status-filter').prop('checked'))
+                table.column(6).visible(false);
         }
     
         function reloadTable() {
@@ -311,40 +322,45 @@
         var table = document.getElementById(tableId);
         var rows = table.getElementsByTagName('tr');
         var csvContent = '';
-
+    
         // Extract table headings
         var headerRow = rows[0];
         var headerCells = headerRow.getElementsByTagName('th');
         var headerRowContent = '';
-
+    
         for (var k = 0; k < headerCells.length; k++) {
             var headerCell = headerCells[k];
-            headerRowContent += headerCell.textContent.trim() + ',';
+            if (k !== 0 && headerCell.textContent.trim() !== 'Action') {
+                headerRowContent += headerCell.textContent.trim() + ',';
+            }
         }
-
+    
         headerRowContent = headerRowContent.slice(0, -1); // Remove the trailing comma
         csvContent += headerRowContent + '\r\n';
-
-            // Extract visible rows
-            for (var i = 1; i < rows.length; i++) {
-                var row = rows[i];
-
-                if (!isHidden(row)) {
-                    var cells = row.getElementsByTagName('td');
-                    var csvRow = '';
-
-                    for (var j = 0; j < cells.length; j++) {
-                        var cell = cells[j];
+    
+        // Extract visible rows
+        for (var i = 1; i < rows.length; i++) {
+            var row = rows[i];
+    
+            if (!isHidden(row)) {
+                var cells = row.getElementsByTagName('td');
+                var csvRow = '';
+    
+                for (var j = 0; j < cells.length; j++) {
+                    var cell = cells[j];
+                    if (j !== 0 && cell.textContent.trim() !== '') {
                         csvRow += cell.textContent.trim() + ',';
                     }
-
-                    csvRow = csvRow.slice(0, -1); // Remove the trailing comma
-                    csvContent += csvRow + '\r\n';
                 }
+    
+                csvRow = csvRow.slice(0, -1); // Remove the trailing comma
+                csvContent += csvRow + '\r\n';
             }
-
-            downloadCSV(csvContent);
+        }
+    
+        downloadCSV(csvContent);
     }
+    
 
     function isHidden(element) {
         return element.offsetParent === null;
@@ -464,6 +480,20 @@
         }
     });
 
+    $('#product_import_form').validate({
+        rules: {
+            products_list: {
+                required: true
+            }
+        },
+        messages: {
+            products_list: {
+                required: 'Please select a file.'
+            }
+        },
+        // Your other validation options go here
+    });
+
 
 
     function deleteSelectedProducts(){
@@ -505,11 +535,11 @@
     }
 
 
-    $('.checkbox').on('click',function(){
-        if($(this).is(':checked')){
+    // $('.checkbox').on('click',function(){
+    //     if($(this).is(':checked')){
 
-        }
-    });
+    //     }
+    // });
 
     $(document).on('change', '.product_selector', function() {
         var isChecked = $('.product_selector:checked').length > 0;
@@ -520,158 +550,86 @@
             }
     });
 
-    $('#product_form').on('submit',function(){
-        element  = $(this);
-        element.validate({
-            rules: {
-                name: {
-                    minlength: 2,
-                    required: true
-                },
-                price: {
-                    min: 1,
-                    required: true
-                },
-                sku: {
-                    minlength: 5,
-                    required: true
-                },
-                // details: {
-                //     minlength: 5,
-                //     required: true
-                // },
-                status: {
-                    required: true
-                }
-            },
-            messages: {
-                name: {
-                    required: 'Please enter a name.',
-                    minlength: jQuery.validator.format('Name must be at least {0} characters.')
-                },
-                price: {
-                    required: 'Please enter a price.',
-                    min: 'Price must be at least 1.'
-                },
-                sku: {
-                    required: 'Please enter an SKU.',
-                    minlength: jQuery.validator.format('SKU must be at least {0} characters.')
-                },
-                details: {
-                    required: 'Please enter details.',
-                    minlength: jQuery.validator.format('Details must be at least {0} characters.')
-                },
-                status: {
-                    required: 'Please select a status.'
-                }
-            },
-            highlight: function (element) {
-                $(element)
-                    .closest('.form-control')
-                    .removeClass('is-valid')
-                    .addClass('is-invalid');
-            },
-            unhighlight: function (element) {
-                $(element)
-                    .closest('.form-control')
-                    .removeClass('is-invalid')
-                    .addClass('is-valid');
-            },
-            errorPlacement: function (error, element) {
-                if (element.attr('name') === 'status') {
-                    error.insertAfter(element.parent());
-                } else {
-                    error.insertAfter(element);
-                }
-            },
-            errorClass: 'invalid-feedback',
-            validClass: 'valid-feedback',
-            submitHandler: function () {
-                saveproduct();
-            }
-        });
+    $('#name').on('input', function() {
+        if ($(this).val().trim() !== '') {
+            $('#name').removeClass('is-invalid').addClass('is-valid');
+        } else {
+            $('#name').removeClass('is-valid').addClass('is-invalid');
+        }
+    });
+    
+    $('#price').on('input', function() {
+        if ($(this).val().trim() !== '') {
+            $('#price').removeClass('is-invalid').addClass('is-valid');
+        } else {
+            $('#price').removeClass('is-valid').addClass('is-invalid');
+        }
+    });
+    
+    $('#sku').on('input', function() {
+        if ($(this).val().trim() !== '') {
+            $('#sku').removeClass('is-invalid').addClass('is-valid');
+        } else {
+            $('#sku').removeClass('is-valid').addClass('is-invalid');
+        }
+    });
+    
+    $('#status').on('change', function() {
+        if ($(this).val().trim() !== '') {
+            $('#status').removeClass('is-invalid').addClass('is-valid');
+        } else {
+            $('#status').removeClass('is-valid').addClass('is-invalid');
+        }
     });
 
-    $('#product_form').one('submit', function (event) {
-        event.preventDefault();
-        var element = $(this);
-        element.validate({
-            rules: {
-                name: {
-                    minlength: 2,
-                    required: true
-                },
-                price: {
-                    min: 1,
-                    required: true
-                },
-                sku: {
-                    minlength: 5,
-                    required: true
-                },
-                // details: {
-                //     minlength: 5,
-                //     required: true
-                // },
-                status: {
-                    required: true
-                }
-            },
-            messages: {
-                name: {
-                    required: 'Please enter a name.',
-                    minlength: jQuery.validator.format('Name must be at least {0} characters.')
-                },
-                price: {
-                    required: 'Please enter a price.',
-                    min: 'Price must be at least 1.'
-                },
-                sku: {
-                    required: 'Please enter an SKU.',
-                    minlength: jQuery.validator.format('SKU must be at least {0} characters.')
-                },
-                details: {
-                    required: 'Please enter details.',
-                    minlength: jQuery.validator.format('Details must be at least {0} characters.')
-                },
-                status: {
-                    required: 'Please select a status.'
-                }
-            },
-            highlight: function (element) {
-                $(element)
-                    .closest('.form-control')
-                    .removeClass('is-valid')
-                    .addClass('is-invalid');
-            },
-            unhighlight: function (element) {
-                $(element)
-                    .closest('.form-control')
-                    .removeClass('is-invalid')
-                    .addClass('is-valid');
-            },
-            errorPlacement: function (error, element) {
-                if (element.attr('name') === 'status') {
-                    error.insertAfter(element.parent());
-                } else {
-                    error.insertAfter(element);
-                }
-            },
-            errorClass: 'invalid-feedback',
-            validClass: 'valid-feedback',
-            submitHandler: function () {
-                saveProduct();
-                // Disable the submit button to prevent multiple submissions
-                element.find('button[type="submit"]').prop('disabled', true);
+    function submitProductForm(id = null)
+    {
+        if ($('#name').val().trim() !== '') {
+            $('#name').removeClass('is-invalid').addClass('is-valid');
+        } else {
+            $('#name').removeClass('is-valid').addClass('is-invalid');
+        }
+    
+        if ($('#price').val().trim() !== '') {
+            $('#price').removeClass('is-invalid').addClass('is-valid');
+        } else {
+            $('#price').removeClass('is-valid').addClass('is-invalid');
+        }
+    
+        if ($('#sku').val().trim() !== '') {
+            $('#sku').removeClass('is-invalid').addClass('is-valid');
+        } else {
+            $('#sku').removeClass('is-valid').addClass('is-invalid');
+        }
+
+        if ($('#status').val().trim() !== '') {
+            $('#status').removeClass('is-invalid').addClass('is-valid');
+        } else {
+            $('#status').removeClass('is-valid').addClass('is-invalid');
+        }
+    
+        // Additional validation logic can be added here
+    
+        // If all fields are valid, you can proceed with form submission
+        if ($('#name').hasClass('is-valid') && $('#price').hasClass('is-valid') && $('#sku').hasClass('is-valid') && $('#status').hasClass('is-valid')) {
+            // Perform form submission
+            saveproduct(id);
+            var formElement = $('#product_form');
+            if (formElement.length > 0) {
+                // formElement[0].reset();
+                formElement.find('.is-invalid, .is-valid').removeClass('is-invalid is-valid');
+            } else {
+                console.error('Form element not found.');
             }
-        });
-    });
+            // $('#productsModal').modal('hide'); 
+        }
+
+    }
+
+
    
-    
-    
 
-    
-    
+
 
 
 

@@ -429,22 +429,22 @@ class ProductController extends Controller
             "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
             "Expires" => "0"
         );
-
+    
         $products = Product::all();
-        $columns = array('id', 'name', 'sku' ,'price', 'details','status');
-
-        $callback = function() use ($products, $columns)
-        {
+        $columns = array('id', 'name', 'sku', 'price', 'details', 'status');
+    
+        $callback = function () use ($products, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
-
-            foreach($products as $product) {
-                fputcsv($file, array($product->id, $product->name, $product->sku,  $product->price,  $product->details, $product->status));
+    
+            foreach ($products as $product) {
+                fputcsv($file, array($product->id, $product->name, $product->sku, $product->price, $product->details, $product->status));
             }
             fclose($file);
         };
         return Response::stream($callback, 200, $headers);
     }
+    
 
 
     public function import(Request $request)
@@ -465,9 +465,20 @@ class ProductController extends Controller
             $reader->setHeaderOffset(0);
             // Create a product from each row in the CSV file
          
-            foreach ($reader as $row) {
+            foreach ($reader as  $row) {
                 // dd($row);
-                Product::create($row);
+                $is_exists = DB::table('products')
+                                    //  ->where('id',$row['id'])
+                                     ->orWhere('name',$row['name'])
+                                    //  ->orWhere('details',$row['details'])
+                                     ->orWhere('sku',$row['sku'])
+                                    //  ->orWhere('price',$row['price'])
+                                    //  ->orWhere('status',$row['status'])
+                                     ->exists();
+                if(!$is_exists) 
+                {                    
+                    Product::create($row);  
+                }
             }
             
             return redirect()->back()->with('success', 'Import completed successfully.');
